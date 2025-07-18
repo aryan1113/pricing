@@ -5,7 +5,7 @@ Then
 - activate it using `source check/bin/activate`,
 - install requirements using `pip install -r requirements.txt`
 
-To get inference, run `python -m run scripts.get_inference.py`
+To get inference, run `python -m scripts.get_inference`
 
 ## Moving around this repo
 1. /datasets, for csv inputs

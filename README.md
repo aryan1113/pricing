@@ -1,3 +1,12 @@
+## How to use this ?
+Download locally, simple git clone <br>
+Then 
+- create a venv using python3.11 `python3.11 -m venv check`, 
+- activate it using `source check/bin/activate`,
+- install requirements using `pip install -r requirements.txt`
+
+To get inference, run `python -m run scripts.get_inference.py`
+
 ## Moving around this repo
 1. /datasets, for csv inputs
 2. /scripts, for pricing inference, generating product catalogue, saving logs to csv and utils to keep get_inference.py simple
@@ -12,7 +21,7 @@
 - [Results sheet](https://docs.google.com/spreadsheets/d/12mNKzSWa--2QllrEFT3lJVhQ-Lhfm7T5FCxTrcNoRkw/edit?usp=sharing)
 
 ## How to use the predictor / inference ?
-Simply run scripts/get_inference.py, inputs have been specified in the file itself, <br>
+Simply run python -m run `scripts.get_inference.py`, inputs have been specified in the file itself, <br>
 pass in values     
 - sample_title 
 - sample_desc 

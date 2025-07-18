@@ -1,0 +1,78 @@
+# Initial thoughts
+
+## About the columns
+Product Id: unique row identifier for each listing, we can check for duplicates using product-id, other than that ; column feels redundant, as 
+1. no notion of order, higher product id does not transfer into a higher price
+2. large arbitary number
+
+Will only be used for the predictor, wherein a row is uniquely identified by the product_id and all other params are passed through
+
+Other cols:
+1. title
+    - limit to first few tokens (8 or 16)
+2. description: 
+    - can use as bonus, will increase final text embedding of what we pass into the architechture
+    - must limit these to first few tokens (24, as with Query Listing) as some descriptions can be very long
+    - find out largest description, or basically distribution of lengths, using boxplot or histogram (simpler to visualize)
+3. condition: a very strong attribute, as for a similar item the highest price will be alloted to brand new condition, 
+    - to verify this by plotting distribution of prices  for distinct values of condition
+4. image_url: of varying sizes, with max vals of width and height being 320
+    - can pad all images to be of size 320x320, with black (0 pixel value)
+    - note that url will be passed to the predictor, must extract raw image and then pass onto model architechture
+5. date transacted
+    - look for seasonality in data, plot distplot
+    - is the train, validation and test set from different time period
+
+Target:
+    price
+        skewed distribution, instead price log1p(price) and then invert this transformation at inference time
+
+## Building a price predictor
+Must pre-process text columns (title and description) 
+- remove accents, punctuation, stopwords, brackets, but keep numbers
+- get tokens for title and description, can simply append description tokens to the title tokens to get an aggregate token
+- pass this through high dim embedding model
+
+Condition column is ordinal, can rank items from best to worst (manual intervention is bad, if I end up specifying the order values)
+
+Pass text embedding + condition_val + subsampled_image + treated_date to model
+
+## Need to figure out
+1. How to encode condition column
+2. How to subsample the image, 
+    2.1 reduce channels 
+            (less explanable)
+        2.1.1 convert rgb subspace to Y, Cb, Cr then subsample these spaces aggresively (as most information will be within Y)
+            
+            (easy to visualize)
+        2.1.2 or reduce channels from RGB to simple grayscale 
+
+    2.2 reduce image dims
+        2.2.1 use a CNN to compress down image information using conv layers followed by maxpool
+        2.2.2 use an autoencoder to push down information in a latent space (less explanable)
+
+3. How to make use of date_sold column, do we take this as a time series problem ?
+
+    3.1 can split date_sold column into three, 
+        simply passing in the date, month and year as numerical input to the neural network 
+
+    3.2 do not pass in the date at all, as we anyways have a lot of attributes from the 
+        one hot encoded categories + image + text tokens (title, description)
+
+    3.3 more transactions happen on weekends, so instead of passing in raw dates 
+        we could pass in day_of_week with 1 for monday, 7 for sunday (avoid 0 in data, as it would stop gradient flow (dead neuron) )
+
+        day_of_week and month is cyclical in nature, and to avoid setting in notion of scale (friday being 5 times more important than a monday)
+        we can instead get a pair of sine, cosine values for each number 
+
+
+## How to create a product catalogue
+
+Cannot hardcode any attributes
+Using title and desc is a good start, but we cannot hardcode (expect these to be present for some other category)
+
+For now, we'll work with hardcoding the columns, but nothing specific to the category
+
+Can group by Title, Desc and product condition
+Date sold, image are not that important, maybe in future we could de-dupe based on images (image similarilty is kinda expensive for now)
+
